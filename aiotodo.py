@@ -3,15 +3,18 @@ from aiohttp import web
 import aiohttp_cors
 
 TODOS = {
-    0: {'title': 'build an API', 'order': 1, 'completed': False, 'url': 'Test Url', 'tags': []},
-    1: {'title': '?????', 'order': 2, 'completed': False, 'url': 'Test Url', 'tags': []},
-    2: {'title': 'profit!', 'order': 3, 'completed': False, 'url': 'Test Url', 'tags': []}
+    0: {'title': 'build an API', 'order': 1, 'completed': False},
+    1: {'title': '?????', 'order': 2, 'completed': False},
+    2: {'title': 'profit!', 'order': 3, 'completed': False}
 }
 
 TAGS = {
-    0: {'title': 'THE TAG', 'url': 'Test url', 'todos': []},
+    0: {'title': 'THE TAG'},
 }
 
+MAP = {
+    0:{'todo_id': 1, 'tag_id': 0}
+}
 
 def get_all_todos(request):
     return web.json_response([
@@ -45,7 +48,7 @@ async def create_todo(request):
     data['completed'] = bool(data.get('completed', False))
     new_id = max(TODOS.keys(), default=0) + 1
     data['url'] = str(request.url.join(request.app.router['one_todo'].url_for(id=str(new_id))))
-    data['tags'] = []
+    #data['tags'] = []
     TODOS[new_id] = data
 
     return web.Response(
@@ -81,14 +84,13 @@ def remove_todo(request):
 
 def remove_all_tags(request):
     TAGS.clear()
-    return web.Response(status=200)
+    return web.Response(status=204)
 
 
 def get_all_tags(request):
     return web.json_response([
         {'id': key, **tag} for key, tag in TAGS.items()
     ])
-
 
 async def create_tag(request):
     data = await request.json()
@@ -101,21 +103,15 @@ async def create_tag(request):
     if not isinstance(title, str) or not len(title):
         return web.json_response({'error': '"title" must be a string with at least one character'})
 
-    for item in TAGS:
-        if item.title == title:
-            return web.json_response({'error': '"title" is already in use'})
-
     new_id = max(TAGS.keys(), default=0) + 1
 
     data['url'] = str(request.url.join(request.app.router['one_tag'].url_for(id=str(new_id))))
-
-    data['todos'] = []
 
     TAGS[new_id] = data
 
     return web.Response(
         headers={'Location': data['url']},
-        status=200
+        status=303
     )
 
 
@@ -127,7 +123,7 @@ def remove_tag(request):
 
     del TAGS[id]
 
-    return web.Response(status=200)
+    return web.Response(status=204)
 
 
 def get_one_tag(request):
@@ -156,16 +152,62 @@ def get_todos_of_tag(request):
     if id not in TAGS:
         return web.json_response({'error': 'Tag not found'}, status=404)
 
-    
+    output = []
+
+    for entry in MAP:
+        if entry.tag_id == id:
+
+            if entry.todo_id not in TODOS:
+                return web.json_response({'error': 'Todo not found'}, status=404)
+
+            output.append({'id': entry.todo_id, **TODOS[entry.todo_id]})
+
+    return web.json_response(output)
+
+def remove_tag_from_todo(request):
+    id = int(request.match_info['id'])
+
+    if id not in TODOS:
+        return web.json_response({'error': 'Todo not found'}, status=404)
+
+    tag_id = int(request.match_info['tag_id'])
+
+    if tag_id not in TAGS:
+        return web.json_response({'error': 'Tag not found'}, status=404)
+
+    for entry in MAP:
+        if entry.tag_id == tag_id:
+            if entry.todo_id == id:
+                del MAP[MAP[entry]]
+                #for key in mydictionary:
+                #   print "key: %s , value: %s" % (key, mydictionary[key])
+
+def remove_tags_from_todo(request):
+    id = int(request.match_info['id'])
+
+    if id not in TODOS:
+        return web.json_response({'error': 'Todo not found'}, status=404)
+
+    for entry in MAP:
+        if entry.todo_id == id:
+            del MAP[MAP[entry]]
+
+
+def get_tags_from_todo(request):
+    print('hehe')
+
+async def create_tag_for_todo(request):
+    print('hehe')
 
 ########################
-# TODO Add correct tags and todos instead of id's to get and getall
 
 # http://todo.thing.zone/documentation#!/tags/deleteTags
 # https://docs.aiohttp.org/en/latest/web_quickstart.html
 # http://demos.aiohttp.org/en/latest/tutorial.html
 # https://ilias.unibe.ch/ilias.php?ref_id=1841334&cmd=frameset&cmdClass=ilrepositorygui&cmdNode=113&baseClass=ilRepositoryGUI
 # https://ilias.unibe.ch/ilias.php?ref_id=1919292&target=1919292&cmd=showOverview&cmdClass=ilobjexercisegui&cmdNode=e1:qp&baseClass=ilexercisehandlergui
+# http://localhost:8080
+# http://todospecs.thing.zone/
 
 ########################
 
@@ -189,13 +231,18 @@ cors.add(app.router.add_patch('/todos/{id:\d+}', update_todo, name='update_todo'
 cors.add(app.router.add_delete('/todos/{id:\d+}', remove_todo, name='remove_todo'))
 
 ###### My code ########
+
+cors.add(app.router.add_delete('/todos/{id:\d+}/tags/', remove_tags_from_todo, name='remove_tags_from_todo'))
+cors.add(app.router.add_get('/todos/{id:\d+}/tags/', get_tags_from_todo, name='get_tags_from_todo'))
+cors.add(app.router.add_post('/todos/{todo_id:\d+}/tags/', create_tag_for_todo, name='create_tag_for_todo'))
+cors.add(app.router.add_delete('/todos/{id:\d+}/tags/{tag_id:\d+}', remove_tag_from_todo, name='remove_tag_from_todo'))
+
 cors.add(app.router.add_get('/tags/', get_all_tags, name='all_tags'))
 cors.add(app.router.add_delete('/tags/', remove_all_tags, name='remove_tags'))
 cors.add(app.router.add_post('/tags/', create_tag, name='create_tag'))
 cors.add(app.router.add_delete('/tags/{id:\d+}', remove_tag, name='remove_tag'))
 cors.add(app.router.add_get('/tags/{id:\d+}', get_one_tag, name='one_tag'))
 cors.add(app.router.add_patch('/tags/{id:\d+}', update_tag, name='update_tag'))
-
 
 cors.add(app.router.add_get('/tags/{id:\d+}/todos/', get_todos_of_tag, name='todos_of_tag'))
 
