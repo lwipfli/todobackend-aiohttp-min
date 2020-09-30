@@ -211,6 +211,7 @@ def remove_tag_from_todo(request):
 
     for element in delete:
         del MAP[element]
+    return web.Response(status=204)
 
 def remove_tags_from_todo(request):
     id = int(request.match_info['id'])
@@ -225,6 +226,8 @@ def remove_tags_from_todo(request):
 
     for element in delete:
         del MAP[element]
+    return web.Response(status=204)
+
 
 
 def get_tags_from_todo(request):

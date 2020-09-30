@@ -31,11 +31,7 @@ class HttpProcessingError(Exception):
         self.headers = headers
         self.message = message
 
-    def __str__(self) -> str:
-        return "%s, message=%r" % (self.code, self.message)
-
-    def __repr__(self) -> str:
-        return "<%s: %s>" % (self.__class__.__name__, self)
+        super().__init__("%s, message='%s'" % (self.code, message))
 
 
 class BadHttpMessage(HttpProcessingError):
@@ -46,7 +42,6 @@ class BadHttpMessage(HttpProcessingError):
     def __init__(self, message: str, *,
                  headers: Optional[_CIMultiDict]=None) -> None:
         super().__init__(message=message, headers=headers)
-        self.args = (message,)
 
 
 class HttpBadRequest(BadHttpMessage):
@@ -79,7 +74,6 @@ class LineTooLong(BadHttpMessage):
         super().__init__(
             "Got more than %s bytes (%s) when reading %s." % (
                 limit, actual_size, line))
-        self.args = (line, limit, actual_size)
 
 
 class InvalidHeader(BadHttpMessage):
@@ -89,19 +83,15 @@ class InvalidHeader(BadHttpMessage):
             hdr = hdr.decode('utf-8', 'surrogateescape')
         super().__init__('Invalid HTTP Header: {}'.format(hdr))
         self.hdr = hdr
-        self.args = (hdr,)
 
 
 class BadStatusLine(BadHttpMessage):
 
     def __init__(self, line: str='') -> None:
-        if not isinstance(line, str):
+        if not line:
             line = repr(line)
-        self.args = (line,)
+        self.args = line,
         self.line = line
-
-    __str__ = Exception.__str__
-    __repr__ = Exception.__repr__
 
 
 class InvalidURLError(BadHttpMessage):

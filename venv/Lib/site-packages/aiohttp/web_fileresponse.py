@@ -24,6 +24,7 @@ from .log import server_logger
 from .typedefs import LooseHeaders
 from .web_exceptions import (
     HTTPNotModified,
+    HTTPOk,
     HTTPPartialContent,
     HTTPPreconditionFailed,
     HTTPRequestRangeNotSatisfiable,
@@ -244,7 +245,7 @@ class FileResponse(StreamResponse):
             encoding = 'gzip' if gzip else None
             should_set_ct = False
 
-        status = self._status
+        status = HTTPOk.status_code
         file_size = st.st_size
         count = file_size
 
@@ -317,8 +318,8 @@ class FileResponse(StreamResponse):
                 status = HTTPPartialContent.status_code
                 # Even though you are sending the whole file, you should still
                 # return a HTTP 206 for a Range request.
-                self.set_status(status)
 
+        self.set_status(status)
         if should_set_ct:
             self.content_type = ct  # type: ignore
         if encoding:

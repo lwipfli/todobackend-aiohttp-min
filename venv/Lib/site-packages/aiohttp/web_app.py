@@ -88,7 +88,7 @@ class Application(MutableMapping[str, Any]):
     def __init__(self, *,
                  logger: logging.Logger=web_logger,
                  router: Optional[UrlDispatcher]=None,
-                 middlewares: Iterable[_Middleware]=(),
+                 middlewares: Sequence[_Middleware]=(),
                  handler_args: Mapping[str, Any]=None,
                  client_max_size: int=1024**2,
                  loop: Optional[asyncio.AbstractEventLoop]=None,
@@ -465,9 +465,6 @@ class Application(MutableMapping[str, Any]):
 
     def __repr__(self) -> str:
         return "<Application 0x{:x}>".format(id(self))
-
-    def __bool__(self) -> bool:
-        return True
 
 
 class CleanupError(RuntimeError):
