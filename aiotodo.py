@@ -2,6 +2,17 @@ import logging
 from aiohttp import web
 import aiohttp_cors
 
+import databases
+import sqlalchemy
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy.ext.declarative import declarative_base
+import sqlalchemy_utils
+
+import os
+
+ENGINE = None
+CONNECTION = None
+
 TODOS = {
     0: {'title': 'build an API', 'order': 1, 'completed': False},
     1: {'title': '?????', 'order': 2, 'completed': False},
@@ -15,6 +26,133 @@ TAGS = {
 MAP = {
     0:{'todo_id': 9, 'tag_id': 10}
 }
+
+
+METADATA = sqlalchemy.MetaData()
+
+TODOS_TABLE = sqlalchemy.Table('TODOS', METADATA,
+                               sqlalchemy.Column('id', sqlalchemy.Integer, primary_key=True),
+                               sqlalchemy.Column('title', sqlalchemy.String),
+                               sqlalchemy.Column('order', sqlalchemy.Integer),
+                               sqlalchemy.Column('completed', sqlalchemy.Boolean),
+                               sqlalchemy.Column('url', sqlalchemy.String))
+
+TAGS_TABLE = sqlalchemy.Table('TAGS', METADATA,
+                              sqlalchemy.Column('id', sqlalchemy.Integer, primary_key=True),
+                              sqlalchemy.Column('title', sqlalchemy.String),
+                              sqlalchemy.Column('url', sqlalchemy.String))
+
+MAP_TABLE = sqlalchemy.Table('MAP', METADATA, sqlalchemy.Column('id', sqlalchemy.Integer, primary_key=True),
+                             sqlalchemy.Column('todo_id', sqlalchemy.Integer),
+                             sqlalchemy.Column('tag_id', sqlalchemy.Integer))
+
+## Database functions ***
+
+def remove_tag_from_database(id):
+    try:
+        CONNECTION.execute(TAGS_TABLE.delete().where(TAGS_TABLE.c.id == id))
+    except Exception as e:
+        print('ERROR: Could not remove tag with id ',id,' from database')
+        print(e)
+
+def remove_all_tags_from_database():
+    try:
+        CONNECTION.execute(TAGS_TABLE.delete())
+    except Exception as e:
+        print('ERROR: Could not remove all tags from database')
+        print(e)
+
+def insert_tag_into_database(id,title,url):
+    try:
+        CONNECTION.execute(TAGS_TABLE.insert().values(id=id, title=title, url=url))
+    except Exception as e:
+        print('ERROR: Could not create tag with id: ',id,' title: ',title, ' url:', url )
+        print(e)
+
+def update_tag_in_database(id,title=None,url=None):
+    try:
+        if title:
+            CONNECTION.execute(TAGS_TABLE.update().where(TAGS_TABLE.c.id == id).values(title=title))
+        if url:
+            CONNECTION.execute(TAGS_TABLE.update().where(TAGS_TABLE.c.id == id).values(url=url))
+    except Exception as e:
+        print('ERROR: Could not update tag with id: ',id)
+        print(e)
+
+def select_tag_from_database(id):
+    try:
+        result = CONNECTION.execute(TAGS_TABLE.select().where(TAGS_TABLE.c.id == id))
+        return result
+    except Exception as e:
+        print('ERROR: Could not get tag with id:',id)
+        print(e)
+
+def select_all_tags_from_database():
+    try:
+        result = CONNECTION.execute(TAGS_TABLE.select())
+        return result
+    except Exception as e:
+        print('ERROR: Could not get all tags from database')
+        print(e)
+
+def tag_exists_in_database(id):
+    try:
+        result = CONNECTION.execute(TAGS_TABLE.select().where(TAGS_TABLE.c.id == id))
+        for row in result:
+            return True
+        return False
+
+    except Exception as e:
+        print('ERROR: Could not check if tag with id:',id,' exists in database')
+        print(e)
+
+def tag_count():
+    try:
+        count = 0
+        result = CONNECTION.execute(TAGS_TABLE.select())
+        for row in result:
+            count=count+1
+        return count
+    except Exception as e:
+        print('Could not get the count of entries in table database')
+        print(e)
+
+def remove_todo_from_database(id):
+    try:
+        CONNECTION.execute(TODOS_TABLE.delete().where(TODOS_TABLE.c.id == id))
+    except Exception as e:
+        print('ERROR: Could not remove todo with id ',id,' from database')
+        print(e)
+
+def remove_all_todos_from_database():
+    try:
+        CONNECTION.execute(TODOS_TABLE.delete())
+    except Exception as e:
+        print('ERROR: Could not remove all todos from database')
+        print(e)
+
+def insert_todo_into_database(id,title,order,completed,url):
+    try:
+        CONNECTION.execute(TODOS_TABLE.insert().values(id=id, title=title,order=order,completed=completed,url=url))
+    except Exception as e:
+        print('ERROR: Could not create todo with id: ',id,' title: ',title,' order: ', order,' completed:', completed, ' url:', url )
+        print(e)
+
+def update_todo_in_database(id,title=None,order=None,completed=None,url=None):
+    try:
+        if title:
+            CONNECTION.execute(TODOS_TABLE.update().where(TODOS_TABLE.c.id == id).values(title=title))
+        if order:
+            CONNECTION.execute(TODOS_TABLE.update().where(TODOS_TABLE.c.id == id).values(order=order))
+        if completed:
+            CONNECTION.execute(TODOS_TABLE.update().where(TODOS_TABLE.c.id == id).values(completed=completed))
+        if url:
+            CONNECTION.execute(TODOS_TABLE.update().where(TODOS_TABLE.c.id == id).values(url=url))
+    except Exception as e:
+        print('ERROR: Could not update todo with id: ',id)
+        print(e)
+
+## Database functions end***
 
 def get_all_todos(request):
 
@@ -279,6 +417,46 @@ async def associate_tag_to_todo(request):
 ########################
 
 app = web.Application()
+
+########################
+
+dir_path = os.path.dirname(os.path.realpath(__file__))
+print('Current path for database: ', dir_path)
+ENGINE = sqlalchemy.create_engine('sqlite:///'+dir_path+'\\app_database.db')
+CONNECTION = ENGINE.connect()
+
+
+if not sqlalchemy_utils.database_exists(ENGINE.url):
+    print('No database found. Creating new one.')
+
+    sqlalchemy_utils.create_database(ENGINE.url)
+    try:
+        METADATA.create_all(ENGINE)
+    except Exception as e:
+        print('Error during table creation.')
+        print(e)
+
+#### Test of database #####
+insert_tag_into_database(0,"Test_Tag", "Test_Url")
+print('Inserted test value')
+
+
+result=select_all_tags_from_database()
+print('Printing table entries:')
+for row in result:
+    print('id: ',row['id'],' title: ',row['title'],' url: ',row['url'])
+
+update_tag_in_database(0,"Klaus Heinrich tag")
+
+result=select_all_tags_from_database()
+print('Printing table entries after removal:')
+for row in result:
+    print('id: ',row['id'],' title:', row['title'],' url: ',row['url'])
+
+print('Is tag with id 0 there? Answer: ',tag_exists_in_database(0))
+print('Is tag with id 1 there? Answer: ',tag_exists_in_database(1))
+
+########################
 
 # Configure default CORS settings.
 cors = aiohttp_cors.setup(app, defaults={

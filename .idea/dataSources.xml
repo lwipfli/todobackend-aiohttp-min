@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="DataSourceManagerImpl" format="xml" multifile-model="true">
+    <data-source source="LOCAL" name="app_database" uuid="21b5853b-c07e-4ce3-beee-c690e375d4fa">
+      <driver-ref>sqlite.xerial</driver-ref>
+      <synchronize>true</synchronize>
+      <jdbc-driver>org.sqlite.JDBC</jdbc-driver>
+      <jdbc-url>jdbc:sqlite:C:\Users\Lorenzo Wipfli\Desktop\Todo-Backend\todobackend-aiohttp-min\app_database.db</jdbc-url>
+    </data-source>
+  </component>
+</project>
