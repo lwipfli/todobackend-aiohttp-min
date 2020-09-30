@@ -62,12 +62,14 @@ def remove_all_tags_from_database():
         print('ERROR: Could not remove all tags from database')
         print(e)
 
+
 def insert_tag_into_database(id,title,url):
     try:
         CONNECTION.execute(TAGS_TABLE.insert().values(id=id, title=title, url=url))
     except Exception as e:
         print('ERROR: Could not create tag with id: ',id,' title: ',title, ' url:', url )
         print(e)
+
 
 def update_tag_in_database(id,title=None,url=None):
     try:
@@ -131,7 +133,8 @@ def remove_all_todos_from_database():
         print('ERROR: Could not remove all todos from database')
         print(e)
 
-def insert_todo_into_database(id,title,order,completed,url):
+
+async def insert_todo_into_database(id,title,order,completed,url):
     try:
         CONNECTION.execute(TODOS_TABLE.insert().values(id=id, title=title,order=order,completed=completed,url=url))
     except Exception as e:
@@ -150,6 +153,116 @@ def update_todo_in_database(id,title=None,order=None,completed=None,url=None):
             CONNECTION.execute(TODOS_TABLE.update().where(TODOS_TABLE.c.id == id).values(url=url))
     except Exception as e:
         print('ERROR: Could not update todo with id: ',id)
+        print(e)
+
+def select_todo_from_database(id):
+    try:
+        result = CONNECTION.execute(TODOS_TABLE.select().where(TODOS_TABLE.c.id == id))
+        return result
+    except Exception as e:
+        print('ERROR: Could not get todo with id:',id)
+        print(e)
+
+def select_all_todos_from_database():
+    try:
+        result = CONNECTION.execute(TODOS_TABLE.select())
+        return result
+    except Exception as e:
+        print('ERROR: Could not get all todos from database')
+        print(e)
+
+def todo_exists_in_database(id):
+    try:
+        result = CONNECTION.execute(TODOS_TABLE.select().where(TODOS_TABLE.c.id == id))
+        for row in result:
+            return True
+        return False
+
+    except Exception as e:
+        print('ERROR: Could not check if todo with id:',id,' exists in database')
+        print(e)
+
+def todo_count():
+    try:
+        count = 0
+        result = CONNECTION.execute(TODOS_TABLE.select())
+        for row in result:
+            count=count+1
+        return count
+    except Exception as e:
+        print('Could not get the count of entries in table database')
+        print(e)
+
+
+def map_count():
+    try:
+        count = 0
+        result = CONNECTION.execute(MAP_TABLE.select())
+        for row in result:
+            count=count+1
+        return count
+    except Exception as e:
+        print('Could not get the count of entries in table database')
+        print(e)
+
+
+def select_map_entries_from_database(todo_id):
+    try:
+        result = CONNECTION.execute(MAP_TABLE.select().where(MAP_TABLE.c.todo_id == todo_id))
+        return result
+    except Exception as e:
+        print('ERROR: Could not get map entries with todo_id:',id)
+        print(e)
+
+def select_map_entries_from_database(tag_id):
+    try:
+        result = CONNECTION.execute(MAP_TABLE.select().where(MAP_TABLE.c.tag_id == tag_id))
+        return result
+    except Exception as e:
+        print('ERROR: Could not get map entries with tag_id:',id)
+        print(e)
+
+def select_map_entries_from_database(todo_id, tag_id):
+    try:
+        result = CONNECTION.execute(MAP_TABLE.select().where(MAP_TABLE.c.tag_id == tag_id and MAP_TABLE.c.todo_id == todo_id))
+        return result
+    except Exception as e:
+        print('ERROR: Could not get map entries with tag_id:',tag_id,' and todo_id: ',todo_id)
+        print(e)
+
+def remove_map_entries_from_database(todo_id):
+    try:
+        CONNECTION.execute(MAP_TABLE.delete().where(MAP_TABLE.c.todo_id == todo_id))
+    except Exception as e:
+        print('ERROR: Could not remove map entries with todo_id: ',todo_id,' from database')
+        print(e)
+
+def remove_map_entries_from_database(todo_id):
+    try:
+        CONNECTION.execute(MAP_TABLE.delete().where(MAP_TABLE.c.todo_id == todo_id))
+    except Exception as e:
+        print('ERROR: Could not remove map entries with tag_id: ',todo_id,' from database')
+        print(e)
+
+def remove_map_entries_from_database(todo_id, tag_id):
+    try:
+        CONNECTION.execute(MAP_TABLE.delete().where(MAP_TABLE.c.todo_id == todo_id and MAP_TABLE.c.tag_id == tag_id))
+    except Exception as e:
+        print('ERROR: Could not remove map entries with tag_id: ',tag_id,' and todo_id:', todo_id,' from database')
+        print(e)
+
+def remove_all_map_entries_from_database():
+    try:
+        CONNECTION.execute(MAP_TABLE.delete())
+    except Exception as e:
+        print('ERROR: Could not remove all map entries from database')
+        print(e)
+
+def insert_map_entry_into_database(todo_id,tag_id):
+    try:
+        CONNECTION.execute(MAP_TABLE.insert().values(todo_id=id, tag_id=tag_id))
+    except Exception as e:
+        print('ERROR: Could not create map entry with tag_id: ',tag_id,' and todo_id: ',todo_id)
         print(e)
 
 ## Database functions end***
