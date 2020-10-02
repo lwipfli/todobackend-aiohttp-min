@@ -254,7 +254,7 @@ async def map_count():
         print(e)
 
 
-async def select_map_entries_from_database(todo_id):
+async def select_map_entries_from_database_todo(todo_id):
     try:
         #result = CONNECTION.execute(MAP_TABLE.select().where(MAP_TABLE.c.todo_id == todo_id))
         query = MAP_TABLE.select().where(MAP_TABLE.c.todo_id == todo_id)
@@ -273,7 +273,7 @@ async def select_all_map_entries_from_database():
         print('ERROR: Could not get all map entries')
         print(e)
 
-async def select_map_entries_from_database(tag_id):
+async def select_map_entries_from_database_tag(tag_id):
     try:
         #result = CONNECTION.execute(MAP_TABLE.select().where(MAP_TABLE.c.tag_id == tag_id))
         query = MAP_TABLE.select().where(MAP_TABLE.c.tag_id == tag_id)
@@ -412,8 +412,13 @@ async def create_todo(request):
 
     await insert_todo_into_database(new_id,title,order, data['completed'],data['url'])
 
-    todo = await select_todo_from_database(new_id)
-    print('Todo: ',todo)
+    #todo = await select_todo_from_database(new_id)
+    #print('Todo: ',todo)
+
+    #return web.json_response(
+    #    {'id': todo[0], 'title': todo[1], 'order': todo[2], 'completed': todo[3],
+    #     'url': todo[4]})
+
     return web.Response(
         headers={'Location': data['url']},
         status=303
@@ -519,6 +524,12 @@ async def create_tag(request):
     data['url'] = str(request.url.join(request.app.router['one_tag'].url_for(id=str(new_id))))
 
     await insert_tag_into_database(new_id,title,data['url'])
+
+    #tag = await select_tag_from_database(new_id)
+    #print('Tag: ',tag)
+
+    #return web.json_response(
+    #    {'id': tag[0], 'title': tag[1],'url':tag[2]})
 
     return web.Response(
         headers={'Location': data['url']},
