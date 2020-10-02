@@ -137,7 +137,7 @@ async def tag_count():
         query = TAGS_TABLE.select()
         result = await DATABASE.fetch_all(query=query)
         for row in result:
-            count=count+1
+            count = max(row[0],count)
         return count
     except Exception as e:
         print('Could not get the count of entries in table database')
@@ -233,7 +233,7 @@ async def todo_count():
         query = TODOS_TABLE.select()
         result = await DATABASE.fetch_all(query=query)
         for row in result:
-            count = count+1
+            count = max(row[0],count)
         return count
     except Exception as e:
         print('Could not get the count of entries in table database')
@@ -348,8 +348,8 @@ async def get_all_todos(request):
     for todo in database_todos:
         tags = []
         for map in database_map:
-            if map[0] == todo[0]:
-                tag = await select_tag_from_database(map[0])
+            if map[1] == todo[0]:
+                tag = await select_tag_from_database(map[2])
                 tags.append({'id': tag[0], 'title': tag[1], 'url': tag[2]})
 
         todos.append({'id': todo[0], 'title': todo[1], 'order': todo[2], 'completed': todo[3],
@@ -377,8 +377,8 @@ async def get_one_todo(request):
     tags = []
     database_map = await select_all_map_entries_from_database()
     for map in database_map:
-        if map[0] == id:
-            tag = await select_tag_from_database(map['tag_id'])
+        if map[1] == id:
+            tag = await select_tag_from_database(map[2])
             tags.append({'id': tag[0], 'title': tag[1], 'url': tag[2]})
 
     return web.json_response(
@@ -493,7 +493,7 @@ async def get_all_tags(request):
     for tag in database_tags:
         todos = []
         for map in database_map:
-            if map[1] == tag[0]:
+            if map[2] == tag[0]:
                 todo = await select_todo_from_database(map[1])
                 todos.append({'id': todo[0], 'title': todo[1], 'order': todo[2], 'completed': todo[3],'url': todo[4]})
 
@@ -552,7 +552,7 @@ async def get_one_tag(request):
     database_map = await select_all_map_entries_from_database()
     todos = []
     for map in database_map:
-        if map[1] == tag[0]:
+        if map[2] == tag[0]:
             todo = await select_todo_from_database(map[1])
             todos.append({'id': todo[0], 'title': todo[1], 'order': todo[2], 'completed': todo[3], 'url': todo[4]})
 
@@ -590,7 +590,7 @@ async def get_todos_of_tag(request):
     database_map = await select_all_map_entries_from_database()
     todos = []
     for map in database_map:
-        if map[1] == tag[0]:
+        if map[2] == tag[0]:
             todo = await select_todo_from_database(map[1])
             todos.append({'id': todo[0], 'title': todo[1], 'order': todo[2], 'completed': todo[3], 'url': todo[4]})
 
@@ -629,8 +629,8 @@ async def get_tags_from_todo(request):
     database_map = await select_all_map_entries_from_database()
     tags = []
     for map in database_map:
-        if map[0] == id:
-            tag = await select_tag_from_database(map[1])
+        if map[1] == id:
+            tag = await select_tag_from_database(map[2])
             tags.append({'id': tag[0], 'title': tag[1], 'url': tag[2]})
 
     return web.json_response(tags)
@@ -649,7 +649,7 @@ async def associate_tag_to_todo(request):
 
     tag_id = data['id']
 
-    await insert_map_entry_into_database(id,tag_id)
+    await insert_map_entry_into_database(id,tag_id) #reversed
     return web.Response(status=201)
 
 async def test():
