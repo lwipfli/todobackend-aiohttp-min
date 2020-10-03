@@ -3,7 +3,6 @@ import logging
 from aiohttp import web
 import aiohttp_cors
 
-
 import sqlalchemy
 import databases
 
@@ -15,7 +14,7 @@ import os
 ENGINE = None
 CONNECTION = None
 
-#Asymchronous
+#Asynchronous
 DIR_PATH = ''
 DATABASE = None
 
@@ -56,18 +55,16 @@ MAP_TABLE = sqlalchemy.Table('MAP', METADATA, sqlalchemy.Column('id', sqlalchemy
 
 async def remove_tag_from_database(id):
     try:
-        #CONNECTION.execute(TAGS_TABLE.delete().where(TAGS_TABLE.c.id == id))
         query = TAGS_TABLE.delete().where(TAGS_TABLE.c.id == id)
-        await DATABASE.execute(query=query);
+        await DATABASE.execute(query=query)
     except Exception as e:
         print('ERROR: Could not remove tag with id ',id,' from database')
         print(e)
 
 async def remove_all_tags_from_database():
     try:
-        #CONNECTION.execute(TAGS_TABLE.delete())
         query = TAGS_TABLE.delete()
-        await DATABASE.execute(query=query);
+        await DATABASE.execute(query=query)
     except Exception as e:
         print('ERROR: Could not remove all tags from database')
         print(e)
@@ -75,7 +72,6 @@ async def remove_all_tags_from_database():
 
 async def insert_tag_into_database(id,title,url):
     try:
-        #CONNECTION.execute(TAGS_TABLE.insert().values(id=id, title=title, url=url))
         query = TAGS_TABLE.insert().values(id=id, title=title, url=url)
         await DATABASE.execute(query=query)
     except Exception as e:
@@ -86,11 +82,9 @@ async def insert_tag_into_database(id,title,url):
 async def update_tag_in_database(id,title=None,url=None):
     try:
         if title:
-            #CONNECTION.execute(TAGS_TABLE.update().where(TAGS_TABLE.c.id == id).values(title=title))
             query = TAGS_TABLE.update().where(TAGS_TABLE.c.id == id).values(title=title)
             await DATABASE.execute(query=query)
         if url:
-            #CONNECTION.execute(TAGS_TABLE.update().where(TAGS_TABLE.c.id == id).values(url=url))
             query = TAGS_TABLE.update().where(TAGS_TABLE.c.id == id).values(url=url)
             await DATABASE.execute(query=query)
     except Exception as e:
@@ -99,7 +93,6 @@ async def update_tag_in_database(id,title=None,url=None):
 
 async def select_tag_from_database(id):
     try:
-        #result = CONNECTION.execute(TAGS_TABLE.select().where(TAGS_TABLE.c.id == id))
         query = TAGS_TABLE.select().where(TAGS_TABLE.c.id == id)
         result = await DATABASE.fetch_one(query=query)
         return result
@@ -109,7 +102,6 @@ async def select_tag_from_database(id):
 
 async def select_all_tags_from_database():
     try:
-        #result = CONNECTION.execute(TAGS_TABLE.select())
         query = TAGS_TABLE.select()
         result = await DATABASE.fetch_all(query=query)
         return result
@@ -119,7 +111,6 @@ async def select_all_tags_from_database():
 
 async def tag_exists_in_database(id):
     try:
-        #result = CONNECTION.execute(TAGS_TABLE.select().where(TAGS_TABLE.c.id == id))
         query = TAGS_TABLE.select().where(TAGS_TABLE.c.id == id)
         result = await DATABASE.fetch_all(query=query)
         for row in result:
@@ -133,7 +124,6 @@ async def tag_exists_in_database(id):
 async def tag_count():
     try:
         count = 0
-        #result = CONNECTION.execute(TAGS_TABLE.select())
         query = TAGS_TABLE.select()
         result = await DATABASE.fetch_all(query=query)
         for row in result:
@@ -145,18 +135,16 @@ async def tag_count():
 
 async def remove_todo_from_database(id):
     try:
-        #CONNECTION.execute(TODOS_TABLE.delete().where(TODOS_TABLE.c.id == id))
         query = TODOS_TABLE.delete().where(TODOS_TABLE.c.id == id)
-        await DATABASE.execute(query=query);
+        await DATABASE.execute(query=query)
     except Exception as e:
         print('ERROR: Could not remove todo with id ',id,' from database')
         print(e)
 
 async def remove_all_todos_from_database():
     try:
-        #CONNECTION.execute(TODOS_TABLE.delete())
         query = TODOS_TABLE.delete()
-        await DATABASE.execute(query=query);
+        await DATABASE.execute(query=query)
     except Exception as e:
         print('ERROR: Could not remove all todos from database')
         print(e)
@@ -164,7 +152,6 @@ async def remove_all_todos_from_database():
 
 async def insert_todo_into_database(id,title,order,completed,url):
     try:
-       #await CONNECTION.execute(TODOS_TABLE.insert().values(id=id, title=title,order=order,completed=completed,url=url))
        query = TODOS_TABLE.insert().values(id=id, title=title,order=order,completed=completed,url=url)
        await DATABASE.execute(query=query)
     except Exception as e:
@@ -174,19 +161,15 @@ async def insert_todo_into_database(id,title,order,completed,url):
 async def update_todo_in_database(id,title=None,order=None,completed=None,url=None):
     try:
         if title:
-            #CONNECTION.execute(TODOS_TABLE.update().where(TODOS_TABLE.c.id == id).values(title=title))
             query = TODOS_TABLE.update().where(TODOS_TABLE.c.id == id).values(title=title)
             await DATABASE.execute(query=query)
         if order:
-            #CONNECTION.execute(TODOS_TABLE.update().where(TODOS_TABLE.c.id == id).values(order=order))
             query = TODOS_TABLE.update().where(TODOS_TABLE.c.id == id).values(order=order)
             await DATABASE.execute(query=query)
         if completed:
-            #CONNECTION.execute(TODOS_TABLE.update().where(TODOS_TABLE.c.id == id).values(completed=completed))
             query = TODOS_TABLE.update().where(TODOS_TABLE.c.id == id).values(completed=completed)
             await DATABASE.execute(query=query)
         if url:
-            #CONNECTION.execute(TODOS_TABLE.update().where(TODOS_TABLE.c.id == id).values(url=url))
             query = TODOS_TABLE.update().where(TODOS_TABLE.c.id == id).values(url=url)
             await DATABASE.execute(query=query)
     except Exception as e:
@@ -195,7 +178,6 @@ async def update_todo_in_database(id,title=None,order=None,completed=None,url=No
 
 async def select_todo_from_database(id):
     try:
-        #result = CONNECTION.execute(TODOS_TABLE.select().where(TODOS_TABLE.c.id == id))
         query = TODOS_TABLE.select().where(TODOS_TABLE.c.id == id)
         result = await DATABASE.fetch_one(query=query)
         return result
@@ -205,7 +187,6 @@ async def select_todo_from_database(id):
 
 async def select_all_todos_from_database():
     try:
-        #result = CONNECTION.execute(TODOS_TABLE.select())
         query = TODOS_TABLE.select()
         result = await DATABASE.fetch_all(query=query)
         return result
@@ -215,7 +196,6 @@ async def select_all_todos_from_database():
 
 async def todo_exists_in_database(id):
     try:
-        #result = CONNECTION.execute(TODOS_TABLE.select().where(TODOS_TABLE.c.id == id))
         query = TODOS_TABLE.select().where(TODOS_TABLE.c.id == id)
         result = await DATABASE.fetch_all(query=query)
         for row in result:
@@ -229,7 +209,6 @@ async def todo_exists_in_database(id):
 async def todo_count():
     try:
         count = 0
-        #result = CONNECTION.execute(TODOS_TABLE.select())
         query = TODOS_TABLE.select()
         result = await DATABASE.fetch_all(query=query)
         for row in result:
@@ -243,7 +222,6 @@ async def todo_count():
 async def map_count():
     try:
         count = 0
-        #result = CONNECTION.execute(MAP_TABLE.select())
         query = MAP_TABLE.select()
         result = await DATABASE.fetch_all(query=query)
         for row in result:
@@ -256,7 +234,6 @@ async def map_count():
 
 async def select_map_entries_from_database_todo(todo_id):
     try:
-        #result = CONNECTION.execute(MAP_TABLE.select().where(MAP_TABLE.c.todo_id == todo_id))
         query = MAP_TABLE.select().where(MAP_TABLE.c.todo_id == todo_id)
         result = await DATABASE.fetch_all(query=query)
         return result
@@ -275,7 +252,6 @@ async def select_all_map_entries_from_database():
 
 async def select_map_entries_from_database_tag(tag_id):
     try:
-        #result = CONNECTION.execute(MAP_TABLE.select().where(MAP_TABLE.c.tag_id == tag_id))
         query = MAP_TABLE.select().where(MAP_TABLE.c.tag_id == tag_id)
         result = await DATABASE.fetch_all(query=query)
         return result
@@ -285,7 +261,6 @@ async def select_map_entries_from_database_tag(tag_id):
 
 async def select_map_entries_from_database(todo_id, tag_id):
     try:
-        #result = CONNECTION.execute(MAP_TABLE.select().where(MAP_TABLE.c.tag_id == tag_id and MAP_TABLE.c.todo_id == todo_id))
         query = MAP_TABLE.select().where(MAP_TABLE.c.todo_id == todo_id ).where( MAP_TABLE.c.tag_id == tag_id)
         result = await DATABASE.fetch_all(query=query)
         return result
@@ -295,18 +270,16 @@ async def select_map_entries_from_database(todo_id, tag_id):
 
 async def remove_todo_map_entries_from_database(todo_id):
     try:
-        #CONNECTION.execute(MAP_TABLE.delete().where(MAP_TABLE.c.todo_id == todo_id))
         query = MAP_TABLE.delete().where(MAP_TABLE.c.todo_id == todo_id)
-        await DATABASE.execute(query=query);
+        await DATABASE.execute(query=query)
     except Exception as e:
         print('ERROR: Could not remove map entries with todo_id: ',todo_id,' from database')
         print(e)
 
 async def remove_tag_map_entries_from_database(tag_id):
     try:
-        #CONNECTION.execute(MAP_TABLE.delete().where(MAP_TABLE.c.todo_id == todo_id))
         query = MAP_TABLE.delete().where(MAP_TABLE.c.tag_id == tag_id)
-        await DATABASE.execute(query=query);
+        await DATABASE.execute(query=query)
     except Exception as e:
         print('ERROR: Could not remove map entries with tag_id: ',tag_id,' from database')
         print(e)
@@ -314,7 +287,7 @@ async def remove_tag_map_entries_from_database(tag_id):
 async def remove_map_entries_from_database(todo_id, tag_id):
     try:
         query = MAP_TABLE.delete().where(MAP_TABLE.c.todo_id == todo_id).where(MAP_TABLE.c.tag_id == tag_id)  # MAP_TABLE.delete().where(MAP_TABLE.c.todo_id == todo_id and MAP_TABLE.c.tag_id == tag_id)
-        await DATABASE.execute(query=query);
+        await DATABASE.execute(query=query)
 
     except Exception as e:
         print('ERROR: Could not remove map entries with tag_id: ',tag_id,' and todo_id:', todo_id,' from database')
@@ -322,16 +295,14 @@ async def remove_map_entries_from_database(todo_id, tag_id):
 
 async def remove_all_map_entries_from_database():
     try:
-        #CONNECTION.execute(MAP_TABLE.delete())
         query = MAP_TABLE.delete()
-        await DATABASE.execute(query=query);
+        await DATABASE.execute(query=query)
     except Exception as e:
         print('ERROR: Could not remove all map entries from database')
         print(e)
 
 async def insert_map_entry_into_database(todo_id,tag_id):
     try:
-        #CONNECTION.execute(MAP_TABLE.insert().values(todo_id=id, tag_id=tag_id))
         query = MAP_TABLE.insert().values(todo_id=todo_id, tag_id=tag_id)
         await DATABASE.execute(query=query)
     except Exception as e:
@@ -412,13 +383,6 @@ async def create_todo(request):
 
     await insert_todo_into_database(new_id,title,order, data['completed'],data['url'])
 
-    #todo = await select_todo_from_database(new_id)
-    #print('Todo: ',todo)
-
-    #return web.json_response(
-    #    {'id': todo[0], 'title': todo[1], 'order': todo[2], 'completed': todo[3],
-    #     'url': todo[4]})
-
     return web.Response(
         headers={'Location': data['url']},
         status=303
@@ -433,10 +397,7 @@ async def update_todo(request):
     completed = None
     title = None
     url = None
-    #await DATABASE.connect()
 
-    #if id not in TODOS:
-    #    return web.json_response({'error': 'Todo not found'}, status=404)
     if not await todo_exists_in_database(id):
         return web.json_response({'error': 'Todo not found'}, status=404)
 
@@ -524,12 +485,6 @@ async def create_tag(request):
     data['url'] = str(request.url.join(request.app.router['one_tag'].url_for(id=str(new_id))))
 
     await insert_tag_into_database(new_id,title,data['url'])
-
-    #tag = await select_tag_from_database(new_id)
-    #print('Tag: ',tag)
-
-    #return web.json_response(
-    #    {'id': tag[0], 'title': tag[1],'url':tag[2]})
 
     return web.Response(
         headers={'Location': data['url']},
@@ -649,7 +604,7 @@ async def get_tags_from_todo(request):
 
 async def associate_tag_to_todo(request):
     data = await request.json()
-
+    print(data)
     id = int(request.match_info['todo_id'])
 
     if 'id' not in data:
@@ -663,42 +618,10 @@ async def associate_tag_to_todo(request):
     await insert_map_entry_into_database(id,tag_id) #reversed
     return web.Response(status=201)
 
-async def test():
-    print('Test start:')
-    print('Create todo')
-    await insert_todo_into_database(1,"Test todo",1,False,"Test url")
-    todo=await select_todo_from_database(1)
-    print('Todo: ',todo)
-    await insert_tag_into_database(1,"Tag_1","Test url")
-    tag_1 = await select_tag_from_database(1)
-    print('Tag 1: ', tag_1)
-    map = await select_all_map_entries_from_database()
-    print('MAP: ', map)
-    print('Associated')
-    await insert_map_entry_into_database(1,1)
-    map = await select_all_map_entries_from_database()
-    print('MAP: ', map)
-    await insert_tag_into_database(2,"Tag_2","Test url")
-    tag_2 = await select_tag_from_database(2)
-    print('Tag 2: ', tag_2)
-    print('Associated')
-    await insert_map_entry_into_database(1,2)
-    map = await select_all_map_entries_from_database()
-    print('MAP: ', map)
-    print('delete tag_1')
-    await remove_map_entries_from_database(1,1)
-    map = await select_all_map_entries_from_database()
-    print('MAP: ', map)
-
-
 
 ########################
-
+# LINKS
 # http://todo.thing.zone/documentation#!/tags/deleteTags
-# https://docs.aiohttp.org/en/latest/web_quickstart.html
-# http://demos.aiohttp.org/en/latest/tutorial.html
-# https://ilias.unibe.ch/ilias.php?ref_id=1841334&cmd=frameset&cmdClass=ilrepositorygui&cmdNode=113&baseClass=ilRepositoryGUI
-# https://ilias.unibe.ch/ilias.php?ref_id=1919292&target=1919292&cmd=showOverview&cmdClass=ilobjexercisegui&cmdNode=e1:qp&baseClass=ilexercisehandlergui
 # http://localhost:8080
 # http://todospecs.thing.zone/
 
@@ -709,7 +632,6 @@ app = web.Application()
 ########################
 
 DIR_PATH = os.path.dirname(os.path.realpath(__file__))
-#print('Current path for database: ', dir_path)
 
 ENGINE = sqlalchemy.create_engine('sqlite:///'+DIR_PATH+'\\app_database.db')
 if not sqlalchemy_utils.database_exists('sqlite:///'+DIR_PATH+'\\app_database.db'):
@@ -726,7 +648,6 @@ CONNECTION = ENGINE.connect()
 
 DATABASE = databases.Database('sqlite:///'+DIR_PATH+'\\app_database.db')
 
-#asyncio.get_event_loop().run_until_complete(test())
 
 ########################
 
